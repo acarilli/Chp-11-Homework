@@ -1,0 +1,97 @@
+---
+title: "Exercise 2"
+author: "Carilli"
+date: '`r format(lubridate::today(), "%Y-%B-%d")`'
+output: 
+  html_document:
+    theme: cerulean
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA, warning = FALSE, message = FALSE,
+                      options(digits = 3, scipen = 999))
+library(tidyverse)
+```
+
+```{r 2data}
+head <- 
+  here::here("data", "headstartTulsa.csv") %>% 
+  read_csv() %>% 
+  janitor::clean_names() %>% 
+  rename(wjtest_01 = wjtest01, free_lunch = freelunch)
+```
+
+### (a)
+
+```{r 2a}
+head %>%
+  lm(cbind(free_lunch, female, black, white, hispanic) ~ cutoff + age, .) %>%
+  broom::tidy() %>% 
+  filter(term == "cutoff" & p.value <= .10) %>% 
+  select(response, statistic, p.value) 
+```
+
+### (b)
+
+```{r 2b}
+head %>% 
+  filter(between(age, -30, 30)) %>% 
+  lm(cbind(free_lunch, female, black, white, hispanic) ~ cutoff + age, .) %>% 
+  broom::tidy() %>% 
+  filter(term == "cutoff" & p.value <= .10) %>% 
+  select(response, statistic, p.value) 
+```
+
+### (c)
+
+```{r 2c}
+head %>% 
+  lm(wjtest_01 ~ cutoff + age, .) %>% 
+  jtools::summ(digits = 4)
+```
+
+### (d)
+
+```{r 2d}
+head %>% 
+  lm(wjtest_01 ~ cutoff * age, .) %>% 
+  jtools::summ(digits = 4)
+```
+
+
+### (e)
+
+```{r 2e}
+jtools::export_summs(
+  head %>% 
+  lm(wjtest_01 ~ cutoff * age, .),
+  
+  head %>% 
+  lm(wjtest_01 ~ cutoff * age +
+       female + free_lunch + white + black + hispanic, .),
+  digits = 4
+)
+
+```
+
+
+### (f)
+
+```{r 2f}
+jtools::export_summs(
+  head %>% 
+    lm(wjtest_01 ~ cutoff * age +
+         female + free_lunch + white + black + hispanic, .),
+  
+  head %>%
+    filter(between(age, -30, 30)) %>%
+    lm(wjtest_01 ~ cutoff * age +
+         female + free_lunch + white + black + hispanic, .),
+  digits = 4,
+  model.names = c("All ages", "Ages within 30 days of cutoff")
+)
+
+
+```
+
