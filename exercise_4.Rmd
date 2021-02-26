@@ -1,0 +1,112 @@
+---
+title: "Exercise 4"
+author: "Carilli"
+date: '`r format(Sys.Date(), "%Y-%B-%d")`'
+output: 
+  html_document:
+    theme: cerulean
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA, warning = FALSE, message = FALSE,
+                      options(digits = 3, scipen = 999))
+library(tidyverse)
+# library(jtools)
+# library(magrittr)
+# library(broom)
+# library(kableExtra)
+# library(AER)
+```
+
+```{r 4data}
+head <- 
+  here::here("data", "LudwigMiller_head_start.csv") %>% 
+  read_csv() %>% 
+  janitor::clean_names() 
+```
+
+### (a)
+
+### (b)
+
+### (c)
+
+```{r 4c}
+head %>% 
+  lm(mortality ~ head_start + poverty, .) %>% 
+  jtools::summ(digits = 4)
+```
+
+### (d)
+
+```{r 4d}
+head %>% 
+  lm(mortality ~ head_start * poverty, .) %>% 
+  jtools::summ(digits = 4)
+```
+
+### (e)
+
+```{r 4e}
+jtools::export_summs(
+  head %>%
+    filter(between(poverty, -.8, .8)) %>%
+    lm(mortality ~ head_start + poverty, .),
+  
+  head %>%
+    filter(between(poverty, -.8, .8)) %>%
+    lm(mortality ~ head_start * poverty, .),
+  
+  digits = 4
+)
+
+```
+
+
+### (f)
+
+```{r 4f}
+head %>% 
+  lm(mortality ~ head_start * poverty + head_start * I(poverty^2), .) %>% 
+  jtools::summ(digits = 4)
+```
+
+### (g)
+
+```{r 4g}
+head %>% 
+  ggplot(aes(x = poverty, y = mortality)) + 
+  geom_jitter(alpha = 0.1, na.rm = TRUE)
+```
+
+### (h)
+
+```{r 4h}
+head %>% 
+  drop_na() %>% 
+  ggplot(aes(x = poverty, y = mortality)) + 
+  stat_summary_bin(fun.y = "mean", bins = 48,
+                   geom = "point", size = 3, color = "blue") +
+  geom_vline(xintercept = 0, color = "dark green") + 
+  geom_smooth(method = "lm", se = TRUE, data = filter(head, poverty < 0)) +
+  geom_smooth(method = "lm", se = TRUE, data = filter(head, poverty > 0), 
+              color = "red")
+```
+
+### (i)
+
+```{r 4i}
+head %>% 
+  ggplot(aes(x = poverty, y = mortality)) + 
+  stat_summary_bin(fun = "mean", bins = 48,
+                   geom = "point", size = 3, color = "blue") +
+  geom_vline(xintercept = 0, color = "dark green") + 
+  geom_smooth(method = "lm", formula = y ~ x + I(x^2),
+              se = TRUE, data = filter(head, poverty < 0)) +
+  geom_smooth(method = "lm", formula = y ~ x + I(x^2),
+              se = TRUE, data = filter(head, poverty > 0), 
+              color = "red")
+```
+
+
