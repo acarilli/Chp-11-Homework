@@ -1,0 +1,253 @@
+---
+title: "Exercise 3"
+author: "Carilli"
+date: '`r format(lubridate::today(), "%B %d, %Y")`'
+output: 
+  html_document:
+    theme: cerulean
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA, warning = FALSE, message = FALSE,
+                      options(digits = 3, scipen = 999))
+library(tidyverse)
+library(broom)
+library(kableExtra)
+library(AER)
+library(scales)
+library(moderndive)
+```
+
+```{r 3data}
+ideology <- 
+  here::here("data", "CongressRD.csv") %>% 
+  read_csv() %>% 
+  janitor::clean_names() %>% 
+  rename(obama_2008 = obama2008, 
+         gop_2_party_2010 = gop2party2010,
+         gop_win_2010 = go_pwin2010)
+```
+
+### (a)
+
+### (b)
+
+### (c)
+
+```{r 3c}
+ideology %>%
+  ggplot(aes(x = gop_2_party_2010, y = ideology)) + 
+  geom_point(color = "blue", na.rm = TRUE) + 
+  geom_vline(xintercept = .5, color = "red") +
+  labs(x = "GOP vote share", y = "Ideology") +
+  scale_x_continuous(labels = percent_format(scale = 100))
+```
+
+
+### (d)
+
+$$\operatorname{ideology}_i = \beta_0 + \beta_1 \operatorname{\text{gop_win_2010}}_i + \beta_2 \operatorname{\text{gop_w_party_2010}}_i + \epsilon_i $$
+### (e)
+
+```{r 3e}
+ideology %>% 
+  lm(ideology ~ gop_win_2010 + I(gop_2_party_2010 - .50), .) %>% 
+  jtools::summ(digits = 4)
+
+ideology %>% 
+  mutate(gop_win_2010 = factor(gop_win_2010, 
+                               labels = c("Democrat Win", "Republican Win"))) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = gop_2_party_2010, y = ideology, color = factor(gop_win_2010))) + 
+  geom_point() + 
+  geom_parallel_slopes(se = FALSE) +
+  labs(x = "GOP vote share", y = "Ideology") +
+  scale_x_continuous(labels = percent_format(scale = 100)) +
+  theme(legend.title = element_blank(), 
+        legend.position = c(.89, .12),
+        legend.background = element_blank())
+```
+
+
+### (f)
+
+```{r 3f}
+ideology %>% 
+  lm(ideology ~ gop_win_2010 * I(gop_2_party_2010 - .50), .) %>% 
+  jtools::summ(digits = 4)
+
+ideology %>% 
+  mutate(gop_win_2010 = factor(gop_win_2010, 
+                               labels = c("Democrat Win", "Republican Win"))) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = gop_2_party_2010 - .5, y = ideology, color = factor(gop_win_2010))) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "GOP vote share", y = "Ideology") +
+  scale_x_continuous(labels = percent_format(scale = 100)) +
+  theme(legend.title = element_blank(), 
+        legend.position = c(.89, .12),
+        legend.background = element_blank()) +
+  annotate(geom = "text", x = -.5, y = -.578, label = "A", color = "blue") + 
+  annotate(geom = "text", x = 0, y = -.313, label = "B", color = "blue") +
+  annotate(geom = "text", x = 0, y = .668, label = "C", color = "red") + 
+  annotate(geom = "text", x = .5, y = .686, label = "D", color = "red")
+```  
+
+```{r 3f-2, echo=FALSE}
+beta <- 
+ideology %>% 
+  lm(ideology ~ gop_win_2010 * I(gop_2_party_2010 - .50), .) %>% 
+  broom::tidy() %>% 
+  pull(estimate)
+```
+
+$\widehat{\operatorname{ideology}_i} = \hat\beta_0 + \hat\beta_1T_i + \hat\beta_2(X_{1i} - C) + \hat\beta_3(X_{1i} - C)T_i$
+
+Consider the following four individuals
+
+1. A democrat with 100% of the vote: point A on the graph above. 
+    + $T_i = 0$ 
+    + $(X_{1i} - C) = -.5$
+    + $\widehat{\operatorname{ideology}_i} = \hat\beta_0 + \hat\beta_2(X_{1i} - C)$
+    + $\widehat{\operatorname{ideology}_i} = `r beta[1] + beta[3]*(-.5)`$
+2. A democrat with 50% of the vote: point B on the graph above.
+    + $T_i = 0$ 
+    + $(X_{1i} - C) = 0$
+    + $\widehat{\operatorname{ideology}_i} = \hat\beta_0$
+    + $\widehat{\operatorname{ideology}_i} = `r beta[1]`$
+3. A republican with 50% of the vote: point C on the graph above.
+    + $T_i = 1$ 
+    + $(X_{1i} - C) = 0$
+    + $\widehat{\operatorname{ideology}_i} = \hat\beta_0 + \hat\beta_1$
+    + $\widehat{\operatorname{ideology}_i} = `r beta[1] + beta[2]`$
+4. A republican with 100% of the vote: point D on the graph above.
+    + $T_i = 1$ 
+    + $(X_{1i} - C) = .5$
+    + $\widehat{\operatorname{ideology}_i} = \hat\beta_0 + \hat\beta_1T_i + \hat\beta_2(X_{1i} - C) + \hat\beta_3(X_{1i} - C)T_i$
+    + $\widehat{\operatorname{ideology}_i} = `r beta[1] + beta[2] + beta[3]*.5 + beta[4]*.5`$
+
+### (g)
+
+```{r 3g}
+ideology %>% 
+  lm(ideology ~ gop_win_2010 * I(gop_2_party_2010), .) %>% 
+  jtools::summ(digits = 4)
+
+ideology %>% 
+  mutate(gop_win_2010 = factor(gop_win_2010, 
+                               labels = c("Democrat Win", "Republican Win"))) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = gop_2_party_2010, y = ideology, color = factor(gop_win_2010))) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "GOP vote share", y = "Ideology") +
+  scale_x_continuous(labels = percent_format(scale = 100)) +
+  theme(legend.title = element_blank(), 
+        legend.position = c(.89, .12),
+        legend.background = element_blank())
+```
+
+```{r 3g-2}
+beta <- 
+ideology %>% 
+  lm(ideology ~ gop_win_2010 * I(gop_2_party_2010), .) %>% 
+  broom::tidy() %>% 
+  pull(estimate)
+
+```
+
+$\widehat{\operatorname{ideology}_i} = \hat\beta_0 + \hat\beta_1T_i + \hat\beta_2X_{1i} + \hat\beta_3X_{1i}T_i$
+
+Consider the following four individuals
+
+1. A democrat with 100% of the vote:
+    + $T_i = 0$ 
+    + $X_{1i} = 0$
+    + $\widehat{\operatorname{ideology}_i} = \hat\beta_0$
+    + $\widehat{\operatorname{ideology}_i} = `r beta[1]`$
+2. A democrat with 50% of the vote: 
+    + $T_i = 0$ 
+    + $X_{1i} = .50$
+    + $\widehat{\operatorname{ideology}_i} = \hat\beta_0 + \hat{\beta_2}*.5$
+    + $\widehat{\operatorname{ideology}_i} = `r beta[1] + beta[3]*.5`$
+3. A republican with 50% of the vote: point C on the graph above.
+    + $T_i = 1$ 
+    + $X_{1i} = .5$
+    + $\widehat{\operatorname{ideology}_i} = \hat\beta_0 + \hat\beta_1 + \hat\beta_2*.5 + \hat\beta_3*.5$
+    + $\widehat{\operatorname{ideology}_i} = `r beta[1] + beta[2] + beta[3]*.5 + beta[4]*.5`$
+4. A repubican with 100% of the vote: point D on the graph above.
+    + $T_i = 1$ 
+    + $X_{1i} = 1$
+    + $\widehat{\operatorname{ideology}_i} = \hat\beta_0 + \hat\beta_1 + \hat\beta_2 + \hat\beta_3$
+    + $\widehat{\operatorname{ideology}_i} = `r beta[1] + beta[2] + beta[3]*1 + beta[4]*1`$
+
+To calculate the difference after at the cutoff: 
+
+The jump at the cutoff is distance from #2 to #3 above. So, $\hat\beta_0 + \hat\beta_1 + \hat\beta_2*.5 + \hat\beta_3*.5 - (\hat\beta_0 + \hat{\beta_2}*.5) = \hat\beta_1+\hat\beta_3*.5 = `r beta[2] + beta[4]*.5`$
+
+### (h)
+
+```{r 3h}
+ideology %>% 
+  drop_na() %>% 
+  ggplot(aes(x = gop_2_party_2010)) + 
+  geom_histogram(bins = 20, fill = "blue", color = "black") + 
+  geom_vline(xintercept = .5, color = "red") +
+  labs(x = "GOP vote share", y = "") +
+  scale_x_continuous(labels = percent_format(scale = 100))
+  
+```
+
+
+### (i)
+
+```{r 3i}
+ideology %>% 
+  lm(cbind(child_poverty, median_income, obama_2008, white_pct) ~ 
+       gop_win_2010 + I(gop_2_party_2010 - .5), .) %>% 
+  broom::tidy() %>% 
+  filter(term == "gop_win_2010") %>% 
+  select(response, statistic, p.value)
+```
+
+#### (j)
+
+```{r 3j}
+ideology %>% 
+  lm(ideology ~ gop_win_2010 * I(gop_2_party_2010 - .50) + 
+       child_poverty + median_income + obama_2008 + white_pct, .) %>% 
+  jtools::summ(digits = 4)
+```
+
+#### (k)
+
+```{r 3k}
+ideology %>% 
+  lm(ideology ~ gop_win_2010 * I(gop_2_party_2010 - .50) + 
+       gop_win_2010 * I((gop_2_party_2010-.5)^2) + 
+       child_poverty + median_income + obama_2008 + white_pct, .) %>% 
+  jtools::summ(digits = 4)
+```
+
+#### (l)
+
+```{r 3l}
+jtools::export_summs(
+  ideology %>% 
+  filter(between(gop_2_party_2010, .4, .6)) %>% 
+  lm(ideology ~ gop_win_2010 * I(gop_2_party_2010 - .5), .),
+  
+  ideology %>% 
+  filter(between(gop_2_party_2010, .4, .6)) %>% 
+  lm(ideology ~ gop_win_2010 * I(gop_2_party_2010 - .5) + 
+       child_poverty + median_income + obama_2008 + white_pct, .),
+  digits = 4
+)
+
+```
+
+
+### (m)

@@ -1,0 +1,103 @@
+---
+title: "Exercise 1"
+author: "Carilli"
+date: '`r format(lubridate::today(), "%Y-%B-%d")`'
+output: 
+  html_document:
+    theme: cerulean
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA, warning = FALSE, message = FALSE,
+                      options(digits = 3, scipen = 999))
+library(tidyverse)
+library(AER)
+```
+
+```{r 1data}
+prek <- 
+  here::here("data", "prekTulsa.csv") %>% 
+  read_csv() %>% 
+  janitor::clean_names() %>% 
+  select(age, cutoff, wjtest_01 = wjtest01, female, black, white, hispanic, 
+         free_lunch = freelunch, other)
+```
+
+### (a)
+
+### (b)
+
+```{r 1b}
+prek %>% 
+  lm(cbind(free_lunch, female, black, white, hispanic) ~ cutoff + age, .) %>% 
+  broom::tidy() %>% 
+  filter(term == "cutoff") %>% 
+  select(response, statistic, p.value)
+```
+
+### (c)
+
+```{r 1c}
+prek %>% 
+  filter(between(age, -30, 30)) %>% 
+  lm(cbind(free_lunch, female, black, white, hispanic) ~ cutoff + age, .) %>% 
+  broom::tidy() %>% 
+  filter(term == "cutoff") %>% 
+  select(response, statistic, p.value) 
+```
+
+### (d)
+
+```{r 1d}
+prek %>% 
+  lm(wjtest_01 ~ cutoff + age, .) %>% 
+  jtools::summ(digits = 4)
+```
+
+
+### (e)
+
+```{r 1e}
+prek %>% 
+  lm(wjtest_01 ~ cutoff * age, .) %>% 
+  jtools::summ(digits = 4)
+```
+
+
+### (f)
+
+```{r 1f}
+prek %>% 
+  lm(wjtest_01 ~ cutoff * age +
+       free_lunch + female + black + hispanic + other, .) %>% 
+  jtools::summ(digits = 4)
+```
+
+### (g)
+
+```{r}
+prek[between(prek$age, -30, 30), ] %>% 
+# prek %>% 
+  # filter(between(age, -30, 30)) %>% 
+  lm(wjtest_01 ~ cutoff * age +
+       free_lunch + female + black + hispanic + other, .) %>% 
+  jtools::summ(digits = 4)
+
+jtools::export_summs(
+  prek %>% 
+    lm(wjtest_01 ~ cutoff * age +
+         free_lunch + female + black + hispanic + other, .),
+  prek %>%
+    filter(between(age, -30, 30)) %>%
+    lm(wjtest_01 ~ cutoff * age +
+         free_lunch + female + black + hispanic + other, .),
+  model.names = c("All ages", "Ages 30 days from cutoff")
+)
+ 
+
+```
+
+
+
