@@ -13,11 +13,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE, comment = NA, warning = FALSE, message = FALSE,
                       options(digits = 3, scipen = 999))
 library(tidyverse)
-library(broom)
-library(kableExtra)
-library(AER)
-library(scales)
-library(moderndive)
 ```
 
 ```{r 3data}
@@ -42,7 +37,7 @@ ideology %>%
   geom_point(color = "blue", na.rm = TRUE) + 
   geom_vline(xintercept = .5, color = "red") +
   labs(x = "GOP vote share", y = "Ideology") +
-  scale_x_continuous(labels = percent_format(scale = 100))
+  scale_x_continuous(labels = scales::percent_format(scale = 100))
 ```
 
 
@@ -62,9 +57,9 @@ ideology %>%
   drop_na() %>% 
   ggplot(aes(x = gop_2_party_2010, y = ideology, color = factor(gop_win_2010))) + 
   geom_point() + 
-  geom_parallel_slopes(se = FALSE) +
+  moderndive::geom_parallel_slopes(se = FALSE) +
   labs(x = "GOP vote share", y = "Ideology") +
-  scale_x_continuous(labels = percent_format(scale = 100)) +
+  scale_x_continuous(labels = scales::percent_format(scale = 100)) +
   theme(legend.title = element_blank(), 
         legend.position = c(.89, .12),
         legend.background = element_blank())
@@ -86,7 +81,7 @@ ideology %>%
   geom_point() + 
   geom_smooth(method = "lm", se = FALSE) +
   labs(x = "GOP vote share", y = "Ideology") +
-  scale_x_continuous(labels = percent_format(scale = 100)) +
+  scale_x_continuous(labels = scales::percent_format(scale = 100)) +
   theme(legend.title = element_blank(), 
         legend.position = c(.89, .12),
         legend.background = element_blank()) +
@@ -144,7 +139,7 @@ ideology %>%
   geom_point() + 
   geom_smooth(method = "lm", se = FALSE) +
   labs(x = "GOP vote share", y = "Ideology") +
-  scale_x_continuous(labels = percent_format(scale = 100)) +
+  scale_x_continuous(labels = scales::percent_format(scale = 100)) +
   theme(legend.title = element_blank(), 
         legend.position = c(.89, .12),
         legend.background = element_blank())
@@ -197,7 +192,7 @@ ideology %>%
   geom_histogram(bins = 20, fill = "blue", color = "black") + 
   geom_vline(xintercept = .5, color = "red") +
   labs(x = "GOP vote share", y = "") +
-  scale_x_continuous(labels = percent_format(scale = 100))
+  scale_x_continuous(labels = scales::percent_format(scale = 100))
   
 ```
 
