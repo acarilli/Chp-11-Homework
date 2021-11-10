@@ -207,7 +207,7 @@ ideology %>%
        gop_win_2010 + I(gop_2_party_2010 - .5), .) %>% 
   broom::tidy() %>% 
   filter(term == "gop_win_2010") %>% 
-  select(response, statistic, p.value)
+  select(response, estimate, statistic, p.value)
 ```
 
 ## (j)
