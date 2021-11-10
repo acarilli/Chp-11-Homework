@@ -210,7 +210,7 @@ ideology %>%
   select(response, estimate, statistic, p.value)
 ```
 
-## (j)
+## (j) {.tabset}
 
 ```{r 3j}
 ideology %>% 
@@ -218,6 +218,52 @@ ideology %>%
        child_poverty + median_income + obama_2008 + white_pct, .) %>% 
   jtools::summ(digits = 4)
 ```
+
+### (j extended regressions)
+
+```{r 3j-extended-lm}
+jtools::export_summs(
+  ideology %>%
+    lm(obama_2008 ~ gop_win_2010 + I(gop_2_party_2010 - .50), .),
+  ideology %>%
+    filter(between(gop_2_party_2010, .4, .6)) %>%
+    lm(obama_2008 ~ gop_win_2010 + I(gop_2_party_2010 - .50), .),
+  model.names = c("All obs", "Vote Share .4 to .6")
+)
+```
+
+### (j extended-plots)
+
+```{r j-extended-plots}
+ideology %>% 
+  mutate(gop_win_2010 = factor(gop_win_2010, 
+                               labels = c("Democrat Win", "Republican Win"))) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = gop_2_party_2010, y = obama_2008, color = factor(gop_win_2010))) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "GOP vote share", y = "Obama 2008") +
+  scale_x_continuous(labels = scales::percent_format(scale = 100)) +
+  theme(legend.title = element_blank(), 
+        legend.position = c(.89, .12),
+        legend.background = element_blank())
+
+ideology %>% 
+  filter(between(gop_2_party_2010, .4, .6)) %>% 
+  mutate(gop_win_2010 = factor(gop_win_2010, 
+                               labels = c("Democrat Win", "Republican Win"))) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = gop_2_party_2010, y = obama_2008, color = factor(gop_win_2010))) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "GOP vote share", y = "Obama 2008") +
+  scale_x_continuous(labels = scales::percent_format(scale = 100)) +
+  theme(legend.title = element_blank(), 
+        legend.position = c(.89, .12),
+        legend.background = element_blank())
+
+```
+
 
 ## (k)
 
