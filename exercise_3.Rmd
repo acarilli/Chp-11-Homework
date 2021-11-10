@@ -25,11 +25,13 @@ ideology <-
          gop_win_2010 = go_pwin2010)
 ```
 
-### (a)
+# {.tabset}
 
-### (b)
+## (a)
 
-### (c)
+## (b)
+
+## (c)
 
 ```{r 3c}
 ideology %>%
@@ -41,10 +43,10 @@ ideology %>%
 ```
 
 
-### (d)
+## (d)
 
 $$\operatorname{ideology}_i = \beta_0 + \beta_1 \operatorname{\text{gop_win_2010}}_i + \beta_2 \operatorname{\text{gop_w_party_2010}}_i + \epsilon_i $$
-### (e)
+## (e)
 
 ```{r 3e}
 ideology %>% 
@@ -66,7 +68,7 @@ ideology %>%
 ```
 
 
-### (f)
+## (f)
 
 ```{r 3f}
 ideology %>% 
@@ -124,7 +126,7 @@ Consider the following four individuals
     + $\widehat{\operatorname{ideology}_i} = \hat\beta_0 + \hat\beta_1T_i + \hat\beta_2(X_{1i} - C) + \hat\beta_3(X_{1i} - C)T_i$
     + $\widehat{\operatorname{ideology}_i} = `r beta[1] + beta[2] + beta[3]*.5 + beta[4]*.5`$
 
-### (g)
+## (g)
 
 ```{r 3g}
 ideology %>% 
@@ -183,7 +185,7 @@ To calculate the difference after at the cutoff:
 
 The jump at the cutoff is distance from #2 to #3 above. So, $\hat\beta_0 + \hat\beta_1 + \hat\beta_2*.5 + \hat\beta_3*.5 - (\hat\beta_0 + \hat{\beta_2}*.5) = \hat\beta_1+\hat\beta_3*.5 = `r beta[2] + beta[4]*.5`$
 
-### (h)
+## (h)
 
 ```{r 3h}
 ideology %>% 
@@ -197,7 +199,7 @@ ideology %>%
 ```
 
 
-### (i)
+## (i)
 
 ```{r 3i}
 ideology %>% 
@@ -208,7 +210,7 @@ ideology %>%
   select(response, statistic, p.value)
 ```
 
-#### (j)
+## (j)
 
 ```{r 3j}
 ideology %>% 
@@ -217,7 +219,7 @@ ideology %>%
   jtools::summ(digits = 4)
 ```
 
-#### (k)
+## (k)
 
 ```{r 3k}
 ideology %>% 
@@ -227,7 +229,7 @@ ideology %>%
   jtools::summ(digits = 4)
 ```
 
-#### (l)
+## (l)
 
 ```{r 3l}
 jtools::export_summs(
@@ -245,4 +247,4 @@ jtools::export_summs(
 ```
 
 
-### (m)
+## (m)
