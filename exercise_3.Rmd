@@ -7,6 +7,7 @@ output:
     theme: cerulean
     highlight: tango
     df_print: paged
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
